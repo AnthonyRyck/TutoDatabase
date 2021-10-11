@@ -45,7 +45,7 @@ namespace GremlinDriver
 			Console.WriteLine("#--> Création des systèmes (un Vertex / des Vertices !)");
 			loadData.PopulateGraphAsync(allSolarSystems, allJumps).Wait();
 			Console.WriteLine("# --> Done");
-			Task.Delay(1000).Wait();
+			//Task.Delay(1000).Wait();
 
 			//loadData.GetRegion("The Forge").Wait();
 			//loadData.GetRegion("The Forge", 0.5).Wait();

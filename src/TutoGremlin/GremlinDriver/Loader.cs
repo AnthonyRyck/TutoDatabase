@@ -52,26 +52,25 @@ namespace GremlinDriver
 					foreach (var system in allSolarSystems)
 					{
 						GremlinRequest.AddV("SystemSolar")
-									.Property("SolarSystemID", system.SolarSystemID)
+									.Property("SolarSystemID", system.SolarSystemId)
 									.Property("SolarSystemName", system.SolarSystemName)
 									.Property("Securite", system.Securite)
-									.Property("SecuriteClass", system.SecuriteClass)
 									.Property("RegionName", system.RegionName)
-									.As(system.SolarSystemID.ToString())
+									.As(system.SolarSystemId.ToString())
 									.Iterate();
 					}
 
 					Console.WriteLine("Création des Jumps entre les systèmes.");
 					foreach (var jump in allJumps)
 					{
-						if(allSolarSystems.Any(x => x.SolarSystemID == jump.ToSystemID)
-							&& allSolarSystems.Any(x => x.SolarSystemID == jump.FromSystemID))
-						{
+						//if(allSolarSystems.Any(x => x.SolarSystemID == jump.ToSystemID)
+						//	&& allSolarSystems.Any(x => x.SolarSystemID == jump.FromSystemID))
+						//{
 							GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemID", jump.FromSystemID)
 										.AddE("jumpTo")
 										.To(GremlinRequest.V().Has("SolarSystemID", jump.ToSystemID))
 										.Iterate();
-						}
+						//}
 					}
 				});
 			}
