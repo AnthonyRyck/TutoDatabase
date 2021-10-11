@@ -1,10 +1,10 @@
 ﻿using Gremlin.Net.Driver;
 using Gremlin.Net.Driver.Remote;
 using Gremlin.Net.Process.Traversal;
+using Gremlin.Net.Structure;
+using GremlinDriver.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GremlinDriver
@@ -22,21 +22,91 @@ namespace GremlinDriver
 		}
 
 
-
-		public void Populate()
+		public void DropDatabase()
 		{
-			GremlinRequest.AddV("post")
-				.Property("name", "value")
-				.Property("autreName", "autreValue")
-				.As("p1") // A voir à quoi ça correspond ?
+			try
+			{
+				GremlinRequest.V().Drop().Iterate();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"ERROR : {ex.Message}");
+				throw;
+			}
+		}
 
-			.AddV("comment")
-				.Property("name", "value")
-				.Property("autreName", "autreValue")
-				.As("c1")
-			.AddE("nameEdge").From("p1").To("c1")
+		internal Task PopulateSolarSystemsAsync(List<SolarSystem> allSolarSystems)
+		{
+			try
+			{
+				return Task.Factory.StartNew(() => 
+				{
+					GraphTraversal<Vertex, Vertex> next = null;
 
-			.Iterate();
+					foreach (var system in allSolarSystems)
+					{
+						if (next == null)
+						{
+							next = GremlinRequest.AddV("SystemSolar")
+									.Property("SolarSystemID", system.SolarSystemID)
+									.Property("SolarSystemName", system.SolarSystemName)
+									.Property("Securite", system.Securite)
+									.Property("SecuriteClass", system.SecuriteClass)
+									.Property("RegionName", system.RegionName)
+									.As(system.SolarSystemName); //----> mettre As ?
+						}
+						else
+						{
+							next.AddV("SystemSolar")
+									.Property("SolarSystemID", system.SolarSystemID)
+									.Property("SolarSystemName", system.SolarSystemName)
+									.Property("Securite", system.Securite)
+									.Property("SecuriteClass", system.SecuriteClass)
+									.Property("RegionName", system.RegionName)
+									.As(system.SolarSystemName); //----> mettre As ?
+						}
+					}
+
+					next.Iterate();
+				});
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"ERROR : {ex.Message}");
+				throw;
+			}
+		}
+
+
+
+		internal Task PopulateJumpsAsync(List<Jumps> allJumps)
+		{
+			try
+			{
+				return Task.Factory.StartNew(() =>
+				{
+					GraphTraversal<Edge, Edge> next = null;
+
+					foreach (var jump in allJumps)
+					{
+						if (next == null)
+						{
+							next = GremlinRequest.AddE("jumpTo").From(jump.FromSystem).To(jump.ToSystem);
+						}
+						else
+						{
+							next.AddE("jumpTo").From(jump.FromSystem).To(jump.ToSystem);
+						}
+					}
+
+					next.Iterate();
+				});
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"ERROR : {ex.Message}");
+				throw;
+			}
 		}
 	}
 }
