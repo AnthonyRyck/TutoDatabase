@@ -38,7 +38,7 @@ namespace GremlinDriver.Models
 	//	public static string ToQueryAddVertex(this SolarSystem system)
 	//	{
 	//		return $"g.addV('SystemSolar')"
-	//			+ $".property('solar', {system.solarSystemID})"
+	//			+ $".property('solar', {system.SolarSystemID})"
 	//			+ $".property('name', '{system.solarSystemName}')"
 	//			+ $".property('security', {system.securite.ToString(CultureInfo.InvariantCulture)})"
 	//			+ $".property('region', '{system.regionName}')";

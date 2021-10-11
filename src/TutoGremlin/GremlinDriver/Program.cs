@@ -31,7 +31,7 @@ namespace GremlinDriver
 			string jsonContentJumps = File.ReadAllText(pathJumps);
 			List<Jumps> allJumps = JsonSerializer.Deserialize<List<Jumps>>(jsonContentJumps);
 			Console.WriteLine($"# Il y a {allJumps.Count} sauts interstellaires possibles.");
-						
+
 			Console.WriteLine("Fin du chargement des fichiers...");
 
 
@@ -43,14 +43,9 @@ namespace GremlinDriver
 			loadData.DropDatabase();
 
 			Console.WriteLine("#--> Création des systèmes (un Vertex / des Vertices !)");
-			Console.WriteLine("Petite pause.....");
+			loadData.PopulateGraphAsync(allSolarSystems, allJumps).Wait();
+			Console.WriteLine("# --> Done");
 			Task.Delay(1000).Wait();
-			loadData.PopulateSolarSystemsAsync(allSolarSystems).Wait();
-
-			Console.WriteLine("#--> Création des liens (Edge)");
-			Console.WriteLine("Petite pause.....");
-			Task.Delay(1000).Wait();
-			loadData.PopulateJumpsAsync(allJumps).Wait();
 
 			//loadData.GetRegion("The Forge").Wait();
 			//loadData.GetRegion("The Forge", 0.5).Wait();

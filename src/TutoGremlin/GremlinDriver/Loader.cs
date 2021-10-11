@@ -4,6 +4,7 @@ using Gremlin.Net.Process.Traversal;
 using Gremlin.Net.Structure;
 using GremlinDriver.Models;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,13 +16,13 @@ namespace GremlinDriver
 
 		public Loader()
 		{
-			using (var client = new GremlinClient(new GremlinServer("localhost", 8182)))
-			{
-				GremlinRequest = AnonymousTraversalSource.Traversal().WithRemote(new DriverRemoteConnection(client));
-			}
+			var client = new GremlinClient(new GremlinServer("localhost", 8183));
+			GremlinRequest = AnonymousTraversalSource.Traversal().WithRemote(new DriverRemoteConnection(client));
 		}
 
-
+		/// <summary>
+		/// Supprime tous les Vextices
+		/// </summary>
 		public void DropDatabase()
 		{
 			try
@@ -35,71 +36,43 @@ namespace GremlinDriver
 			}
 		}
 
-		internal Task PopulateSolarSystemsAsync(List<SolarSystem> allSolarSystems)
+		/// <summary>
+		/// Ajoute les Vertices et les Edges.
+		/// </summary>
+		/// <param name="allSolarSystems"></param>
+		/// <param name="allJumps"></param>
+		/// <returns></returns>
+		internal Task PopulateGraphAsync(List<SolarSystem> allSolarSystems, List<Jumps> allJumps)
 		{
 			try
 			{
 				return Task.Factory.StartNew(() => 
 				{
-					GraphTraversal<Vertex, Vertex> next = null;
-
+					Console.WriteLine("--> Création des systèmes solaires.");
 					foreach (var system in allSolarSystems)
 					{
-						if (next == null)
-						{
-							next = GremlinRequest.AddV("SystemSolar")
+						GremlinRequest.AddV("SystemSolar")
 									.Property("SolarSystemID", system.SolarSystemID)
 									.Property("SolarSystemName", system.SolarSystemName)
 									.Property("Securite", system.Securite)
 									.Property("SecuriteClass", system.SecuriteClass)
 									.Property("RegionName", system.RegionName)
-									.As(system.SolarSystemName); //----> mettre As ?
-						}
-						else
-						{
-							next.AddV("SystemSolar")
-									.Property("SolarSystemID", system.SolarSystemID)
-									.Property("SolarSystemName", system.SolarSystemName)
-									.Property("Securite", system.Securite)
-									.Property("SecuriteClass", system.SecuriteClass)
-									.Property("RegionName", system.RegionName)
-									.As(system.SolarSystemName); //----> mettre As ?
-						}
+									.As(system.SolarSystemID.ToString())
+									.Iterate();
 					}
 
-					next.Iterate();
-				});
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"ERROR : {ex.Message}");
-				throw;
-			}
-		}
-
-
-
-		internal Task PopulateJumpsAsync(List<Jumps> allJumps)
-		{
-			try
-			{
-				return Task.Factory.StartNew(() =>
-				{
-					GraphTraversal<Edge, Edge> next = null;
-
+					Console.WriteLine("Création des Jumps entre les systèmes.");
 					foreach (var jump in allJumps)
 					{
-						if (next == null)
+						if(allSolarSystems.Any(x => x.SolarSystemID == jump.ToSystemID)
+							&& allSolarSystems.Any(x => x.SolarSystemID == jump.FromSystemID))
 						{
-							next = GremlinRequest.AddE("jumpTo").From(jump.FromSystem).To(jump.ToSystem);
-						}
-						else
-						{
-							next.AddE("jumpTo").From(jump.FromSystem).To(jump.ToSystem);
+							GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemID", jump.FromSystemID)
+										.AddE("jumpTo")
+										.To(GremlinRequest.V().Has("SolarSystemID", jump.ToSystemID))
+										.Iterate();
 						}
 					}
-
-					next.Iterate();
 				});
 			}
 			catch (Exception ex)
