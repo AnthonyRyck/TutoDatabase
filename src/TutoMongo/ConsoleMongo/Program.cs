@@ -150,12 +150,12 @@ namespace ConsoleMongo
 			Console.WriteLine("#:> Appuyer sur une touche pour commencer.");
 			Console.ReadKey();
 
-			mongo.ImportFiles(collectionCommandes,
+			await mongo.ImportFiles(collectionCommandes,
 								Path.Combine(pathBase, "Command1.json"),
 								Path.Combine(pathBase, "Command2.json"),
 								Path.Combine(pathBase, "Command3.json"),
 								Path.Combine(pathBase, "Command4.json"),
-								Path.Combine(pathBase, "Command5.json")).Wait();
+								Path.Combine(pathBase, "Command5.json"));
 			Console.WriteLine("#:> Terminé !");
 			long nbrCommande = mongo.GetCountDocument(collectionCommandes);
 			Console.WriteLine($"#:> Il y a {nbrCommande} documents dans la collection {collectionCommandes}.");
@@ -166,7 +166,8 @@ namespace ConsoleMongo
 			Console.WriteLine("----> Avoir les commandes des clients.");
 			Console.WriteLine("#:> Appuyer sur une touche pour commencer.");
 			Console.ReadKey();
-			await mongo.JointureEntreDeuxCollections(collectionClient, collectionCommandes);
+			var commandesClient = await mongo.JointureEntreDeuxCollections(collectionClient, collectionCommandes);
+			
 
 			Console.WriteLine();
 			Console.WriteLine();
