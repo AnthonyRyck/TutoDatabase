@@ -155,8 +155,7 @@ namespace ConsoleMongo
 								Path.Combine(pathBase, "Command2.json"),
 								Path.Combine(pathBase, "Command3.json"),
 								Path.Combine(pathBase, "Command4.json"),
-								Path.Combine(pathBase, "Command5.json"),
-								Path.Combine(pathBase, "CommandSansClient.json")).Wait();
+								Path.Combine(pathBase, "Command5.json")).Wait();
 			Console.WriteLine("#:> Terminé !");
 			long nbrCommande = mongo.GetCountDocument(collectionCommandes);
 			Console.WriteLine($"#:> Il y a {nbrCommande} documents dans la collection {collectionCommandes}.");
