@@ -24,19 +24,4 @@ namespace GremlinDriver.Models
 		/// </summary>
 		public string RegionName { get; set; }
 	}
-
-
-
-
-	//public static class SolarSystemExtension
-	//{
-	//	public static string ToQueryAddVertex(this SolarSystem system)
-	//	{
-	//		return $"g.addV('SystemSolar')"
-	//			+ $".property('solar', {system.SolarSystemID})"
-	//			+ $".property('name', '{system.solarSystemName}')"
-	//			+ $".property('security', {system.securite.ToString(CultureInfo.InvariantCulture)})"
-	//			+ $".property('region', '{system.regionName}')";
-	//	}
-	//}
 }
