@@ -295,77 +295,63 @@ namespace GremlinDriver
 
 				try
 				{
-					//v[4272](Jita), v[24600](Maurasi), v[4328](Itamo)
-					//[path[v[4272](Jita), v[24776](New Caldari), v[24608](Josameto), v[24816](Poinen), v[12528](Nomaa)]]]
-					//var ss = GremlinRequest.V(24776).Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-					//.By("SolarSystemId")
-					//.By("SolarSystemName")
-					//.By("Securite")
-					//.By("RegionName")
-					//.Next();
-					//var bb = GremlinRequest.V(24608).Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-					//.By("SolarSystemId")
-					//.By("SolarSystemName")
-					//.By("Securite")
-					//.By("RegionName")
-					//.Next();
-					//var tt = GremlinRequest.V(24816).Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-					//.By("SolarSystemId")
-					//.By("SolarSystemName")
-					//.By("Securite")
-					//.By("RegionName")
-					//.Next();
-					//var tsdsdt = GremlinRequest.V(12528).Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-					//.By("SolarSystemId")
-					//.By("SolarSystemName")
-					//.By("Securite")
-					//.By("RegionName")
-					//.Next();
-
 					// ServerError: The by("SolarSystemId") modulator can only be applied to a traverser that is an Element or a Map
 					// - it is being applied to [path[v[41112], v[110776], v[118968], v[53296], v[41136]]] a ImmutablePath class instead
-					bool stopIci = true;
-
-					//g.V(startId)
-					//		.until(__.hasId(targetId).or().loops().is (100))
-					//			.repeat(__.both().simplePath())
-					//		.hasId(targetId).limit(1).path()
-
-					//var vdepart = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", depart).Next();
-					//Console.WriteLine($"Depart : {vdepart.Id} - {depart}");
-					//var varrive = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", arrive).Next();
-					//Console.WriteLine($"Arrive : {varrive.Id} - {arrive}");
-
-					var allSystems = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", depart) //vdepart.Id
+					var allSystems = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", depart)
 											.Repeat(__.Out().SimplePath())
-											.Until(__.HasLabel("SystemSolar").Has("SolarSystemName", arrive)) //.V(varrive.Id)
+											.Until(__.HasLabel("SystemSolar").Has("SolarSystemName", arrive))
 											.Path()
+											//.By("SolarSystemId")
+											//.By("SolarSystemName")
+											//.By("Securite")
+											//.By("RegionName")
 											.Limit<Path>(1)
-											.Next()
+
 					//.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
 					//.By("SolarSystemId")
 					//.By("SolarSystemName")
 					//.By("Securite")
 					//.By("RegionName")
-					//.ToList()
-					;
 
-					stopIci = true;
+					.Next();
+					//.ToList();
 
-					//foreach (var item in allSystems)
-					//{
-					//	SolarSystem system = new SolarSystem();
+					bool stopIci = true;
 
-					//	foreach (var prop in item)
-					//	{
-					//		// Key : correspond au nom de la propriété
-					//		// Value : la valeur de la propriété
-					//		var property = typeof(SolarSystem).GetProperty(prop.Key);
-					//		property.SetValue(system, prop.Value);
-					//	}
+					foreach (var systemRoute in allSystems.Objects)
+					{
+						SolarSystem system = new SolarSystem();
 
-					//	systemsRegion.Add(system);
-					//}
+						var etapeItineraire = GremlinRequest.V(((Vertex)systemRoute).Id)
+															.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
+															.By("SolarSystemId")
+															.By("SolarSystemName")
+															.By("Securite")
+															.By("RegionName")
+															.Next();
+
+
+
+						// Key : correspond au nom de la propriété
+						// Value : la valeur de la propriété
+						foreach (var etape in etapeItineraire)
+						{
+							//SolarSystem system = new SolarSystem();
+
+							// Key : correspond au nom de la propriété
+							// Value : la valeur de la propriété
+							var property = typeof(SolarSystem).GetProperty(etape.Key);
+							property.SetValue(system, etape.Value);
+
+							systemsRegion.Add(system);
+						}
+						//foreach (var item in etapeItineraire)
+						//{
+						//	var property = typeof(SolarSystem).GetProperty(item);
+						//	property.SetValue(system, prop.Value);
+						//	systemsRegion.Add(system);
+						//}
+					}
 				}
 				catch (Exception ex)
 				{
