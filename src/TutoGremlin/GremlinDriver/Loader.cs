@@ -277,7 +277,68 @@ namespace GremlinDriver
 				return systemsRegion;
 			});
 		}
-		
+
+		/// <summary>
+		/// Donne l'itinéraire le plus rapide entre les 2 systèmes donnés,
+		/// et en passant QUE par des systèmes ayant au minimum la sécurité donnée.
+		/// </summary>
+		/// <param name="depart"></param>
+		/// <param name="arrive"></param>
+		/// <param name="minSecurite"></param>
+		/// <returns></returns>
+		internal Task<List<SolarSystem>> GetItineraire(string depart, string arrive, double minSecurite)
+		{
+			return Task.Factory.StartNew(() =>
+			{
+				List<SolarSystem> systemsRegion = new List<SolarSystem>();
+
+				try
+				{
+					var allSystems = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", depart)
+											.Repeat(__.Out()
+														.Has("Securite", P.Gte(minSecurite))
+														.SimplePath())
+											.Until(__.HasLabel("SystemSolar").Has("SolarSystemName", arrive))
+											.Path()
+											.Limit<Path>(1)
+											.Next();
+
+					foreach (var systemRoute in allSystems.Objects)
+					{
+						SolarSystem system = new SolarSystem();
+
+						var etapeItineraire = GremlinRequest.V(((Vertex)systemRoute).Id)
+															.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
+															.By("SolarSystemId")
+															.By("SolarSystemName")
+															.By("Securite")
+															.By("RegionName")
+															.Next();
+
+						// Key : correspond au nom de la propriété
+						// Value : la valeur de la propriété
+						foreach (var etape in etapeItineraire)
+						{
+							// Key : correspond au nom de la propriété
+							// Value : la valeur de la propriété
+							var property = typeof(SolarSystem).GetProperty(etape.Key);
+							property.SetValue(system, etape.Value);
+						}
+
+						systemsRegion.Add(system);
+					}
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.Message);
+					Console.WriteLine("#############");
+					Console.WriteLine(ex.StackTrace);
+				}
+
+				return systemsRegion;
+			});
+		}
+
 		public void Dispose()
 		{
 			ClientGremlin.Dispose();
