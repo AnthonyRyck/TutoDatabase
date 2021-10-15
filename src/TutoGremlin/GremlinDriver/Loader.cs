@@ -17,12 +17,14 @@ namespace GremlinDriver
 
 		private const string LABEL_VERTEX = "SystemSolar";
 		private const string EDGE_NAME = "jumpTo";
-
-
+		private const string SOLAR_SYSTEM_ID = "SolarSystemId";
+		private const string SOLAR_SYSTEM_NAME = "SolarSystemName";
+		private const string REGION_NAME = "RegionName";
+		private const string SECURITE = "Securite";
 
 		public Loader()
 		{
-			ClientGremlin = new GremlinClient(new GremlinServer("91.121.171.115", 8182));
+			ClientGremlin = new GremlinClient(new GremlinServer("localhost", 8182));
 			GremlinRequest = AnonymousTraversalSource.Traversal().WithRemote(new DriverRemoteConnection(ClientGremlin));
 		}
 
@@ -60,10 +62,10 @@ namespace GremlinDriver
 					foreach (var system in allSolarSystems)
 					{
 						GremlinRequest.AddV(LABEL_VERTEX)
-									.Property("SolarSystemId", system.SolarSystemId)
-									.Property("SolarSystemName", system.SolarSystemName)
-									.Property("Securite", system.Securite)
-									.Property("RegionName", system.RegionName)
+									.Property(SOLAR_SYSTEM_ID, system.SolarSystemId)
+									.Property(SOLAR_SYSTEM_NAME, system.SolarSystemName)
+									.Property(SECURITE, system.Securite)
+									.Property(REGION_NAME, system.RegionName)
 									.As(system.SolarSystemId.ToString())
 									.Iterate();
 
@@ -76,15 +78,15 @@ namespace GremlinDriver
 
 					foreach (var jump in allJumps)
 					{
-						var debut = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has("SolarSystemId", jump.FromSystemID);
-						var arrive = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has("SolarSystemId", jump.ToSystemID);
+						var debut = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_ID, jump.FromSystemID);
+						var arrive = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_ID, jump.ToSystemID);
 						if (debut != null && arrive != null)
 						{
 
 						
-						GremlinRequest.V().HasLabel(LABEL_VERTEX).Has("SolarSystemId", jump.FromSystemID)
-									.AddE("jumpTo")
-									.To(__.V().Has("SolarSystemId", jump.ToSystemID))
+						GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_ID, jump.FromSystemID)
+									.AddE(EDGE_NAME)
+									.To(__.V().Has(SOLAR_SYSTEM_ID, jump.ToSystemID))
 									.Iterate();
 
 						Console.WriteLine($"--> Jump {counterJump++} sur {totalJump} créé...");
@@ -110,12 +112,12 @@ namespace GremlinDriver
 			{
 				// Retourne List<Dictionary<string, Object>
 				// Liste de system avec le Dictionnaire : nom de la propriété et sa valeur.
-				var allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has("RegionName", regionName)
-										.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-										.By("SolarSystemId")
-										.By("SolarSystemName")
-										.By("Securite")
-										.By("RegionName")
+				var allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(REGION_NAME, regionName)
+										.Project<Object>(SOLAR_SYSTEM_ID, SOLAR_SYSTEM_NAME, SECURITE, REGION_NAME)
+										.By(SOLAR_SYSTEM_ID)
+										.By(SOLAR_SYSTEM_NAME)
+										.By(SECURITE)
+										.By(REGION_NAME)
 										.ToList();
 
 				List<SolarSystem> systemsRegion = new List<SolarSystem>();
@@ -151,13 +153,13 @@ namespace GremlinDriver
 			{
 				// Retourne List<Dictionary<string, Object>
 				// Liste de system avec le Dictionnaire : nom de la propriété et sa valeur.
-				var allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has("RegionName", regionName)
-										.Has("Securite", P.Gte(securiteMin))
-										.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-										.By("SolarSystemId")
-										.By("SolarSystemName")
-										.By("Securite")
-										.By("RegionName")
+				var allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(REGION_NAME, regionName)
+										.Has(SECURITE, P.Gte(securiteMin))
+										.Project<Object>(SOLAR_SYSTEM_ID, SOLAR_SYSTEM_NAME, SECURITE, REGION_NAME)
+										.By(SOLAR_SYSTEM_ID)
+										.By(SOLAR_SYSTEM_NAME)
+										.By(SECURITE)
+										.By(REGION_NAME)
 										.ToList();
 
 				List<SolarSystem> systemsRegion = new List<SolarSystem>();
@@ -191,14 +193,14 @@ namespace GremlinDriver
 			{
 				// Retourne List<Dictionary<string, Object>
 				// Liste de system avec le Dictionnaire : nom de la propriété et sa valeur.
-				var allSystems = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", systemName)
+				var allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, systemName)
 										.OutE()
 										.OtherV()
-										.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-										.By("SolarSystemId")
-										.By("SolarSystemName")
-										.By("Securite")
-										.By("RegionName")
+										.Project<Object>(SOLAR_SYSTEM_ID, SOLAR_SYSTEM_NAME, SECURITE, REGION_NAME)
+										.By(SOLAR_SYSTEM_ID)
+										.By(SOLAR_SYSTEM_NAME)
+										.By(SECURITE)
+										.By(REGION_NAME)
 										.ToList();
 
 				List<SolarSystem> systemsRegion = new List<SolarSystem>();
@@ -235,9 +237,9 @@ namespace GremlinDriver
 
 				try
 				{
-					var allSystems = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", depart)
+					var allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, depart)
 											.Repeat(__.Out().SimplePath())
-											.Until(__.HasLabel("SystemSolar").Has("SolarSystemName", arrive))
+											.Until(__.HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, arrive))
 											.Path()
 											.Limit<Path>(1)
 											.Next();
@@ -247,11 +249,11 @@ namespace GremlinDriver
 						SolarSystem system = new SolarSystem();
 
 						var etapeItineraire = GremlinRequest.V(((Vertex)systemRoute).Id)
-															.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-															.By("SolarSystemId")
-															.By("SolarSystemName")
-															.By("Securite")
-															.By("RegionName")
+															.Project<Object>(SOLAR_SYSTEM_ID, SOLAR_SYSTEM_NAME, SECURITE, REGION_NAME)
+															.By(SOLAR_SYSTEM_ID)
+															.By(SOLAR_SYSTEM_NAME)
+															.By(SECURITE)
+															.By(REGION_NAME)
 															.Next();
 
 						// Key : correspond au nom de la propriété
@@ -294,11 +296,11 @@ namespace GremlinDriver
 
 				try
 				{
-					var allSystems = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", depart)
+					var allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, depart)
 											.Repeat(__.Out()
-														.Has("Securite", P.Gte(minSecurite))
+														.Has(SECURITE, P.Gte(minSecurite))
 														.SimplePath())
-											.Until(__.HasLabel("SystemSolar").Has("SolarSystemName", arrive))
+											.Until(__.HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, arrive))
 											.Path()
 											.Limit<Path>(1)
 											.Next();
@@ -308,11 +310,11 @@ namespace GremlinDriver
 						SolarSystem system = new SolarSystem();
 
 						var etapeItineraire = GremlinRequest.V(((Vertex)systemRoute).Id)
-															.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-															.By("SolarSystemId")
-															.By("SolarSystemName")
-															.By("Securite")
-															.By("RegionName")
+															.Project<Object>(SOLAR_SYSTEM_ID, SOLAR_SYSTEM_NAME, SECURITE, REGION_NAME)
+															.By(SOLAR_SYSTEM_ID)
+															.By(SOLAR_SYSTEM_NAME)
+															.By(SECURITE)
+															.By(REGION_NAME)
 															.Next();
 
 						// Key : correspond au nom de la propriété
