@@ -72,29 +72,56 @@ namespace GremlinDriver
 				//	Console.WriteLine($"-> {item.SolarSystemName} - sécurité {item.Securite} - Région {item.RegionName}");
 				//}
 
-				//Console.WriteLine("#:> Systèmes voisin du système Jita");
+				string systemDepart = "Airaken";
+				string systemArrive = "Reisen";
+
+				//Console.WriteLine($"#:> Systèmes voisin du système {systemDepart}");
 				//Console.WriteLine("Appuyer sur une touche pour continuer...");
 				//Console.ReadKey();
-				//var systemJita = await loadData.GetSystemVoisin("Jita");
+				//var systemJita = await loadData.GetSystemVoisin(systemDepart);
 				//foreach (var item in systemJita)
 				//{
 				//	Console.WriteLine($"-> {item.SolarSystemName} - sécurité {item.Securite} - Région {item.RegionName}");
 				//}
 
-				//Console.WriteLine("#:> Systèmes voisin du système Itamo");
+				//Console.WriteLine();
+				//Console.WriteLine("###################################################");
+				//Console.WriteLine();
+
+				//Console.WriteLine($"#:> Systèmes voisin du système {systemArrive}");
 				//Console.WriteLine("Appuyer sur une touche pour continuer...");
 				//Console.ReadKey();
-				//var systemItamo = await loadData.GetSystemVoisin("Itamo");
+				//var systemItamo = await loadData.GetSystemVoisin(systemArrive);
 				//foreach (var item in systemItamo)
 				//{
 				//	Console.WriteLine($"-> {item.SolarSystemName} - sécurité {item.Securite} - Région {item.RegionName}");
 				//}
 
-				await loadData.Test("Jita", "Nomaa");
-				
-				
-				
-				//loadData.GetItineraire("Jita", "Itamo").Wait();
+				//Console.WriteLine();
+				//Console.WriteLine("###################################################");
+				//Console.WriteLine();
+
+				//Console.WriteLine($"#:> Itinéraire le plus court pour aller de {systemDepart} à {systemArrive}");
+				//Console.WriteLine("Appuyer sur une touche pour continuer...");
+				//Console.ReadKey();
+				//var itineraire = await loadData.GetItineraire(systemDepart, systemArrive);
+				//foreach (var item in itineraire)
+				//{
+				//	Console.WriteLine($"-> {item.SolarSystemName} - sécurité {item.Securite}");
+				//}
+
+				Console.WriteLine();
+				Console.WriteLine("###################################################");
+				Console.WriteLine();
+
+				Console.WriteLine($"#:> Itinéraire sans passer par du LowSec pour aller de {systemDepart} à {systemArrive}");
+				Console.WriteLine("Appuyer sur une touche pour continuer...");
+				Console.ReadKey();
+				var itineraireNoLowSec = await loadData.GetItineraire(systemDepart, systemArrive, 0.5);
+				foreach (var item in itineraireNoLowSec)
+				{
+					Console.WriteLine($"-> {item.SolarSystemName} - sécurité {item.Securite}");
+				}
 			}
 
 			Console.WriteLine("##### FIN de l'application ######");

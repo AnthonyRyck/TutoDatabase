@@ -4,10 +4,8 @@ using Gremlin.Net.Process.Traversal;
 using Gremlin.Net.Structure;
 using GremlinDriver.Models;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Gremlin.Net.Structure.IO.GraphSON;
 
 namespace GremlinDriver
 {
@@ -24,7 +22,7 @@ namespace GremlinDriver
 
 		public Loader()
 		{
-			ClientGremlin = new GremlinClient(new GremlinServer("localhost", 8183));
+			ClientGremlin = new GremlinClient(new GremlinServer("91.121.171.115", 8182));
 			GremlinRequest = AnonymousTraversalSource.Traversal().WithRemote(new DriverRemoteConnection(ClientGremlin));
 		}
 
@@ -86,7 +84,6 @@ namespace GremlinDriver
 						
 						GremlinRequest.V().HasLabel(LABEL_VERTEX).Has("SolarSystemId", jump.FromSystemID)
 									.AddE("jumpTo")
-									//.To(GremlinRequest.V().Has("SolarSystemId", jump.ToSystemID))
 									.To(__.V().Has("SolarSystemId", jump.ToSystemID))
 									.Iterate();
 
@@ -142,7 +139,8 @@ namespace GremlinDriver
 		}
 
 		/// <summary>
-		/// 
+		/// Récupère tous les systèmes de la région donnée, mais qui
+		/// ont une sécurité minimal.
 		/// </summary>
 		/// <param name="regionName"></param>
 		/// <param name="securiteMin"></param>
@@ -182,7 +180,11 @@ namespace GremlinDriver
 			});
 		}
 
-
+		/// <summary>
+		/// Récupère les systèmes voisins (connectés) du système donnée.
+		/// </summary>
+		/// <param name="systemName"></param>
+		/// <returns></returns>
 		internal Task<List<SolarSystem>> GetSystemVoisin(string systemName)
 		{
 			return Task.Factory.StartNew(() =>
@@ -218,76 +220,14 @@ namespace GremlinDriver
 				return systemsRegion;
 			});
 		}
-
-
-
-		internal Task<List<SolarSystem>> GetItineraire(string systemDepart, string systemArrive)
-		{
-			// Requête Gremlin !
-			//g.V().has('name', 'Airaken')
-			//.repeat(out ().simplePath())
-			//.until(has('name', 'Reisen'))
-			//.path().limit(1)
-
-			return Task.Factory.StartNew(() =>
-			{
-				try
-				{
-					// Retourne List<Dictionary<string, Object>
-					// Liste de system avec le Dictionnaire : nom de la propriété et sa valeur.
-					//var allSystems = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", systemDepart)
-					//						.Repeat("itineraire", __.Out().SimplePath())
-					//						.Until(__.HasLabel("SystemSolar").Has("SolarSystemName", systemArrive))
-					//						.Path().Limit<Vertex>(1);
-					//.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-					//.By("SolarSystemId")
-					//.By("SolarSystemName")
-					//.By("Securite")
-					//.By("RegionName")
-					//.ToList();
-
-					var allSystems = ((GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", systemDepart))
-											.Repeat("itineraire", __.Out().SimplePath())
-											.Until(__.HasLabel("SystemSolar").Has("SolarSystemName", systemArrive)))
-											.Dedup().Path()
-											.Limit<Vertex>(1)
-											.Fold()
-					.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-					.By("SolarSystemId")
-					.By("SolarSystemName")
-					.By("Securite")
-					.By("RegionName")
-					.ToList();
-
-					List<SolarSystem> systemsRegion = new List<SolarSystem>();
-					foreach (var item in allSystems)
-					{
-						SolarSystem system = new SolarSystem();
-
-						foreach (var prop in item)
-						{
-							// Key : correspond au nom de la propriété
-							// Value : la valeur de la propriété
-							var property = typeof(SolarSystem).GetProperty(prop.Key);
-							property.SetValue(system, prop.Value);
-						}
-
-						systemsRegion.Add(system);
-					}
-
-					return systemsRegion;
-
-				}
-				catch (Exception ex)
-				{
-					bool stop = true;
-					throw;
-				}
-			});
-		}
-
-
-		internal Task<List<SolarSystem>> Test(string depart, string arrive)
+		
+		/// <summary>
+		/// Donne l'itinéraire le plus rapide entre les 2 systèmes donnés.
+		/// </summary>
+		/// <param name="depart"></param>
+		/// <param name="arrive"></param>
+		/// <returns></returns>
+		internal Task<List<SolarSystem>> GetItineraire(string depart, string arrive)
 		{
 			return Task.Factory.StartNew(() =>
 			{
@@ -295,28 +235,12 @@ namespace GremlinDriver
 
 				try
 				{
-					// ServerError: The by("SolarSystemId") modulator can only be applied to a traverser that is an Element or a Map
-					// - it is being applied to [path[v[41112], v[110776], v[118968], v[53296], v[41136]]] a ImmutablePath class instead
 					var allSystems = GremlinRequest.V().HasLabel("SystemSolar").Has("SolarSystemName", depart)
 											.Repeat(__.Out().SimplePath())
 											.Until(__.HasLabel("SystemSolar").Has("SolarSystemName", arrive))
 											.Path()
-											//.By("SolarSystemId")
-											//.By("SolarSystemName")
-											//.By("Securite")
-											//.By("RegionName")
 											.Limit<Path>(1)
-
-					//.Project<Object>("SolarSystemId", "SolarSystemName", "Securite", "RegionName")
-					//.By("SolarSystemId")
-					//.By("SolarSystemName")
-					//.By("Securite")
-					//.By("RegionName")
-
-					.Next();
-					//.ToList();
-
-					bool stopIci = true;
+											.Next();
 
 					foreach (var systemRoute in allSystems.Objects)
 					{
@@ -330,27 +254,17 @@ namespace GremlinDriver
 															.By("RegionName")
 															.Next();
 
-
-
 						// Key : correspond au nom de la propriété
 						// Value : la valeur de la propriété
 						foreach (var etape in etapeItineraire)
 						{
-							//SolarSystem system = new SolarSystem();
-
 							// Key : correspond au nom de la propriété
 							// Value : la valeur de la propriété
 							var property = typeof(SolarSystem).GetProperty(etape.Key);
 							property.SetValue(system, etape.Value);
-
-							systemsRegion.Add(system);
 						}
-						//foreach (var item in etapeItineraire)
-						//{
-						//	var property = typeof(SolarSystem).GetProperty(item);
-						//	property.SetValue(system, prop.Value);
-						//	systemsRegion.Add(system);
-						//}
+
+						systemsRegion.Add(system);
 					}
 				}
 				catch (Exception ex)
@@ -363,7 +277,7 @@ namespace GremlinDriver
 				return systemsRegion;
 			});
 		}
-
+		
 		public void Dispose()
 		{
 			ClientGremlin.Dispose();
