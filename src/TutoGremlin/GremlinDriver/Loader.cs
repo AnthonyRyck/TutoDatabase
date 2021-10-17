@@ -237,7 +237,7 @@ namespace GremlinDriver
 
 				try
 				{
-					var allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, depart)
+					Path allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, depart)
 											.Repeat(__.Out().SimplePath())
 											.Until(__.HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, arrive))
 											.Path()
@@ -296,7 +296,7 @@ namespace GremlinDriver
 
 				try
 				{
-					var allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, depart)
+					Path allSystems = GremlinRequest.V().HasLabel(LABEL_VERTEX).Has(SOLAR_SYSTEM_NAME, depart)
 											.Repeat(__.Out()
 														.Has(SECURITE, P.Gte(minSecurite))
 														.SimplePath())
