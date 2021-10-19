@@ -66,7 +66,6 @@ namespace GremlinDriver
 									.Property(SOLAR_SYSTEM_NAME, system.SolarSystemName)
 									.Property(SECURITE, system.Securite)
 									.Property(REGION_NAME, system.RegionName)
-									.As(system.SolarSystemId.ToString())
 									.Iterate();
 
 						Console.WriteLine($"--> Système {iSytem++} sur {totalSystem} créé...");
