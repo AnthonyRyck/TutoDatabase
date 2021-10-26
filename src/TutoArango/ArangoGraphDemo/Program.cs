@@ -19,7 +19,7 @@ namespace ArangoGraphDemo
 			Console.WriteLine("######################################################");
 			Console.WriteLine("####### 1ere étape : Connexion à ArangoDb. #######");
 			Console.WriteLine($"----> Connexion sur : {urlArango}:{port}");
-
+			
 
 			Console.WriteLine();
 			Console.WriteLine("######## Fin de l'application Démo ########");

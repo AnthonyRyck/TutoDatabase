@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ArangoConnect
 {
-	internal class ArangoLoader
+	public abstract class ArangoLoader
 	{
-		private ArangoContext Arango;
+		protected ArangoContext Arango;
 
 
 
@@ -24,7 +24,7 @@ namespace ArangoConnect
 		/// </summary>
 		/// <param name="name">Nom de la base de donnée</param>
 		/// <returns></returns>
-		protected async Task CreateDatabase(string name)
+		public async Task CreateDatabase(string name)
 		{
 			await Arango.Database.CreateAsync(name);
 		}
@@ -34,7 +34,7 @@ namespace ArangoConnect
 		/// </summary>
 		/// <param name="name">Nom de la base</param>
 		/// <returns></returns>
-		protected async Task DeleteDatabase(string name)
+		public async Task DeleteDatabase(string name)
 		{
 			await Arango.Database.DropAsync(name);
 		}
