@@ -4,7 +4,7 @@ namespace ArangoConnect.Models
 {
     public class Client //: ArangoId ---> pas obligatoire.
     {
-		public string IdClient { get; set; }
+		public int IdClient { get; set; }
 
         public string Prenom { get; set; }
 
@@ -18,7 +18,7 @@ namespace ArangoConnect.Models
 
         public List<Telephone> Telephone { get; set; }
 
-        public Client(string idClient, string prenom, string nom, string genre, int age, Adresse adresse, List<Telephone> telephone)
+        public Client(int idClient, string prenom, string nom, string genre, int age, Adresse adresse, List<Telephone> telephone)
         {
             IdClient = idClient;
             Prenom = prenom;

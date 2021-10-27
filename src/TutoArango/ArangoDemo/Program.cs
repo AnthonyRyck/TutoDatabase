@@ -20,6 +20,7 @@ namespace ArangoDemo
 			string projectName = "TutoArango";
 			string databaseName = "ctrlaltsupprDb";
 			string collectioncClient = "Client";
+			string collectionCommande = "Commande";
 			string login = "root";
 			string password = "PassCtrlAltSuppr";
 
@@ -44,7 +45,7 @@ namespace ArangoDemo
 			Console.WriteLine("Appuyer sur une touche pour commencer");
 			Console.ReadKey();
 			string pathBase = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Files");
-			await arango.ImportFiles(databaseName, collectioncClient,
+			await arango.ImportFiles<Client>(databaseName, collectioncClient,
 								Path.Combine(pathBase, "client1.json"),
 								Path.Combine(pathBase, "client2.json"),
 								Path.Combine(pathBase, "client3.json"),
@@ -57,7 +58,7 @@ namespace ArangoDemo
 			Console.ReadKey();
 			Client unNouveauClient = new Client()
 			{
-				IdClient = "159",
+				IdClient = 159,
 				Nom = "Lepetitnouveau",
 				Prenom = "coucou",
 				Age = 18,
@@ -67,7 +68,7 @@ namespace ArangoDemo
 					Rue = "Rue du perdu",
 					Ville = "Aussiloin"
 				},
-				Genre = "Male",
+				Genre = "male",
 				Telephone = new List<Telephone>()
 				{
 					new Telephone() { Number = "15488", Type="Maison"},
@@ -90,14 +91,59 @@ namespace ArangoDemo
 			Console.WriteLine("Appuyer sur une touche pour commencer");
 			Console.ReadKey();
 
-
+			Console.WriteLine();
 			Console.WriteLine($"----> Par rapport à l'ID du client.");
 			Console.WriteLine("Appuyer sur une touche pour commencer");
 			Console.ReadKey();
-			Client client = await arango.GetClientById(databaseName, "123");
-			Console.WriteLine($"Client trouvé pour ID = 123 : {client.Prenom} {client.Nom}.");
+			Client clientId = await arango.GetClientById(databaseName, 123);
+			Console.WriteLine($"Client trouvé pour ID = 123 : {clientId.Prenom} {clientId.Nom}.");
 
 			Console.WriteLine();
+			Console.WriteLine("#:> Récupération des clientes. Recherche sur la propriétée \"genre=female\"");
+			Console.WriteLine("Appuyer sur une touche pour commencer");
+			Console.ReadKey();
+			IEnumerable<Client> clientes = await arango.GetFemaleClients(databaseName);
+			foreach (var cliente in clientes)
+			{
+				Console.WriteLine($"Cliente trouvée : {cliente.Prenom} {cliente.Nom} - {cliente.Genre}.");
+			}
+
+			Console.WriteLine();
+			Console.WriteLine("----> Récupération des clients qui ont un age inférieur ou égal à 30 ans");
+			Console.WriteLine("----> Recherche sur la propriété Age.");
+			Console.WriteLine("Appuyer sur une touche pour commencer");
+			Console.ReadKey();
+			IEnumerable<Client> clientsAgeSup = await arango.GetAgeClientsInfOuEgalTo(databaseName, 30);
+			foreach (var client in clientsAgeSup)
+			{
+				Console.WriteLine($"Client trouvé : {client.Nom} {client.Prenom} et son age : {client.Age}.");
+			}
+
+			Console.WriteLine();
+			Console.WriteLine($"####### Dernière étape : Jointure entre 2 collections. #######");
+			Console.WriteLine("Appuyer sur une touche pour commencer");
+			Console.ReadKey();
+
+			Console.WriteLine($"----> Ajout d'une nouvelle collection dans la base : {collectionCommande}");
+			Console.WriteLine("----> Ajout des commandes.");
+			Console.WriteLine("#:> Appuyer sur une touche pour commencer.");
+			Console.ReadKey();
+			await arango.CreateDocumentsCollection(databaseName, collectionCommande);
+			await arango.ImportFiles<Commande>(databaseName, collectionCommande,
+								Path.Combine(pathBase, "Command1.json"),
+								Path.Combine(pathBase, "Command2.json"),
+								Path.Combine(pathBase, "Command3.json"),
+								Path.Combine(pathBase, "Command4.json"),
+								Path.Combine(pathBase, "Command5.json"));
+
+			Console.WriteLine();
+			Console.WriteLine($"----> Jointure entre 2 collections");
+			Console.WriteLine("----> Avoir les commandes des clients.");
+			Console.WriteLine("#:> Appuyer sur une touche pour commencer.");
+			Console.ReadKey();
+			var resultatJointure = await arango.JointureEntreDeuxCollections(databaseName, collectioncClient, collectionCommande);
+
+			Console.WriteLine(); 
 			Console.WriteLine("######## Fin de l'application Démo ########");
 			Console.ReadKey();
 		}

@@ -1,5 +1,5 @@
 {
-	"IdClient": "123",
+	"IdClient": 123,
 	"Prenom": "Marcel",
 	"Nom": "Urubu",
 	"Genre": "male",

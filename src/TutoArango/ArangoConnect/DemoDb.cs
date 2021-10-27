@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Core.Arango.Protocol;
 using ArangoConnect.Models;
-using Core.Arango;
 using Core.Arango.Linq;
 using System.Linq;
+using Core.Arango;
 
 namespace ArangoConnect
 {
@@ -35,18 +34,19 @@ namespace ArangoConnect
 		/// <param name="collectionName"></param>
 		/// <param name="pathFiles"></param>
 		/// <returns></returns>
-		public async Task ImportFiles(string dataBase, string collectionName, params string[] pathFiles)
+		public async Task ImportFiles<T>(string dataBase, string collectionName, params string [] pathFiles)
 		{
-			List<Client> clients = new List<Client>();
+			List<T> importFiles = new List<T>();
 			foreach (var file in pathFiles)
 			{
 				string content = await File.ReadAllTextAsync(file);
-				clients.Add(JsonSerializer.Deserialize<Client>(content));
+				importFiles.Add(JsonSerializer.Deserialize<T>(content));
 			}
 
 			// Juste pour montrer le retour.
-			List<ArangoUpdateResult<ArangoVoid>> collection = await Arango.Document.CreateManyAsync(dataBase, collectionName, clients);
+			List<ArangoUpdateResult<ArangoVoid>> collection = await Arango.Document.CreateManyAsync(dataBase, collectionName, importFiles);
 		}
+		
 
 		/// <summary>
 		/// Ajout un client via une instance.
@@ -73,6 +73,7 @@ namespace ArangoConnect
 											{
 												Age = age
 											});
+
 			await clientToUpdate.FirstOrDefaultAsync();
 		}
 
@@ -83,12 +84,59 @@ namespace ArangoConnect
 		/// <param name="collectionName"></param>
 		/// <param name="idClient"></param>
 		/// <returns></returns>
-		public async Task<Client> GetClientById(string dataBase, string idClient)
+		public async Task<Client> GetClientById(string dataBase, int idClient)
 		{
 			return await Arango.Query<Client>(dataBase)
 								.FirstOrDefaultAsync(x => x.IdClient == idClient);
 		}
 
+		/// <summary>
+		/// Retourne tous les clients de genre "female"
+		/// </summary>
+		/// <returns></returns>
+		public async Task<IEnumerable<Client>> GetFemaleClients(string database)
+		{
+			return await Arango.Query<Client>(database)
+						.Where(x => x.Genre == "female")
+						.ToListAsync();
+		}
 
+		/// <summary>
+		/// Retourne tous les clients qui ont un âge inférieur donné
+		/// </summary>
+		/// <param name="databaseName"></param>
+		/// <param name="v"></param>
+		/// <returns></returns>
+		/// <exception cref="NotImplementedException"></exception>
+		public async Task<IEnumerable<Client>> GetAgeClientsInfOuEgalTo(string databaseName, int age)
+		{
+			return await Arango.Query<Client>(databaseName)
+								.Where(x => x.Age <= age)
+								.ToListAsync();
+		}
+
+		/// <summary>
+		/// Fait la jointure entre 2 collections.
+		/// </summary>
+		/// <param name="databaseName"></param>
+		/// <param name="collectionClient"></param>
+		/// <param name="collectionCommandes"></param>
+		/// <returns></returns>
+		public async Task<IEnumerable<ClientCommandes>> JointureEntreDeuxCollections(string databaseName, string collectionClient, string collectionCommandes)
+		{
+			// Requête AQL
+			// FOR cli IN Client
+			// FOR cmd IN Commande
+			// FILTER cli.IdClient == cmd.ClientId
+			// RETURN { client: cli, commande: cmd }
+
+			FormattableString forPartClient = $"FOR cli IN {collectionClient:@}";
+			FormattableString forPartCmd = $"FOR cmd IN {collectionCommandes:@}";
+			FormattableString filterPart = $"FILTER cli.IdClient == cmd.ClientId";
+			FormattableString returnPart = $"RETURN {{ Client: cli, Commande: cmd}}";
+			ArangoList<ClientCommandes> resultJointure = await Arango.Query.ExecuteAsync<ClientCommandes>(databaseName, $"{forPartClient} {forPartCmd} {filterPart} {returnPart}");
+
+			return resultJointure.ToList();
+		}
 	}
 }

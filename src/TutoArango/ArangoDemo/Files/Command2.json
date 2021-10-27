@@ -1,6 +1,6 @@
 {
-	"ClientId": "456",
-	"IdCommand": "159481584",
+	"ClientId": 456,
+	"IdCommand": 159481584,
 	"Panier":[
 		{
 			"IdItem": 123,

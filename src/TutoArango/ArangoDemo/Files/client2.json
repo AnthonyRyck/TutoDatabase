@@ -1,8 +1,9 @@
 {
-    "IdClient": "456",
+    "IdClient": 456,
     "Prenom": "Jack",
     "Nom": "Daniels",
     "Genre": "male",
+    "Age": 25,
     "Adresse": {
         "Numero": "152",
         "Rue": "Rue du coin",
