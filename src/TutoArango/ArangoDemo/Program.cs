@@ -35,11 +35,13 @@ namespace ArangoDemo
 			await arango.DeleteDatabase(databaseName);
 			await arango.CreateDatabase(databaseName);
 
+			Console.WriteLine();
 			Console.WriteLine($"####### 2eme étape : Création de la collection : {collectioncClient}. #######");
 			Console.WriteLine("Appuyer sur une touche pour commencer");
 			Console.ReadKey();
 			await arango.CreateDocumentsCollection(databaseName, collectioncClient);
 
+			Console.WriteLine();
 			Console.WriteLine($"####### 3eme étape : Ajoutons des documents à notre collection. #######");
 			Console.WriteLine($"----> Ajout de 5 fichiers json dans la collection {collectioncClient}.");
 			Console.WriteLine("Appuyer sur une touche pour commencer");
@@ -77,6 +79,7 @@ namespace ArangoDemo
 			};
 			await arango.AddClientAsync(databaseName, collectioncClient, unNouveauClient);
 
+			Console.WriteLine();
 			Console.WriteLine($"####### 4eme étape : Quelques requêtes sur notre collection. #######");
 
 			Console.WriteLine();
@@ -134,7 +137,8 @@ namespace ArangoDemo
 								Path.Combine(pathBase, "Command2.json"),
 								Path.Combine(pathBase, "Command3.json"),
 								Path.Combine(pathBase, "Command4.json"),
-								Path.Combine(pathBase, "Command5.json"));
+								Path.Combine(pathBase, "Command5.json"),
+								Path.Combine(pathBase, "Command6.json"));
 
 			Console.WriteLine();
 			Console.WriteLine($"----> Jointure entre 2 collections");
