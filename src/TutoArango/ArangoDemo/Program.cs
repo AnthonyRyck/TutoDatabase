@@ -45,7 +45,7 @@ namespace ArangoDemo
 			Console.WriteLine("Appuyer sur une touche pour commencer");
 			Console.ReadKey();
 			string pathBase = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Files");
-			await arango.ImportFiles<Client>(databaseName, collectioncClient,
+			await arango.ImportManyAsync<Client>(databaseName, collectioncClient,
 								Path.Combine(pathBase, "client1.json"),
 								Path.Combine(pathBase, "client2.json"),
 								Path.Combine(pathBase, "client3.json"),
@@ -53,7 +53,7 @@ namespace ArangoDemo
 								Path.Combine(pathBase, "client5.json"));
 
 			Console.WriteLine();
-			Console.WriteLine("----> Ajout d'un nouveau client, via une instance Client");
+			Console.WriteLine("----> Ajout d'un nouveau client.");
 			Console.WriteLine("Appuyer sur une touche pour commencer.");
 			Console.ReadKey();
 			Client unNouveauClient = new Client()
@@ -84,7 +84,7 @@ namespace ArangoDemo
 			Console.WriteLine("de 18 à 21 ans.");
 			Console.WriteLine(" Appuyer sur une touche pour commencer.");
 			Console.ReadKey();
-			await arango.UpdateAgeClientByName(databaseName, "Lepetitnouveau", 21);
+			await arango.UpdateAgeClientByNameAsync(databaseName, "Lepetitnouveau", 21);
 
 
 			Console.WriteLine($"----> Retrouver un document par rapport à une propriété.");
@@ -95,14 +95,14 @@ namespace ArangoDemo
 			Console.WriteLine($"----> Par rapport à l'ID du client.");
 			Console.WriteLine("Appuyer sur une touche pour commencer");
 			Console.ReadKey();
-			Client clientId = await arango.GetClientById(databaseName, 123);
+			Client clientId = await arango.GetClientByIdAsync(databaseName, 123);
 			Console.WriteLine($"Client trouvé pour ID = 123 : {clientId.Prenom} {clientId.Nom}.");
 
 			Console.WriteLine();
 			Console.WriteLine("#:> Récupération des clientes. Recherche sur la propriétée \"genre=female\"");
 			Console.WriteLine("Appuyer sur une touche pour commencer");
 			Console.ReadKey();
-			IEnumerable<Client> clientes = await arango.GetFemaleClients(databaseName);
+			IEnumerable<Client> clientes = await arango.GetFemaleClientsAsync(databaseName);
 			foreach (var cliente in clientes)
 			{
 				Console.WriteLine($"Cliente trouvée : {cliente.Prenom} {cliente.Nom} - {cliente.Genre}.");
@@ -113,7 +113,7 @@ namespace ArangoDemo
 			Console.WriteLine("----> Recherche sur la propriété Age.");
 			Console.WriteLine("Appuyer sur une touche pour commencer");
 			Console.ReadKey();
-			IEnumerable<Client> clientsAgeSup = await arango.GetAgeClientsInfOuEgalTo(databaseName, 30);
+			IEnumerable<Client> clientsAgeSup = await arango.GetAgeClientsInfOuEgalToAsync(databaseName, 30);
 			foreach (var client in clientsAgeSup)
 			{
 				Console.WriteLine($"Client trouvé : {client.Nom} {client.Prenom} et son age : {client.Age}.");
@@ -129,7 +129,7 @@ namespace ArangoDemo
 			Console.WriteLine("#:> Appuyer sur une touche pour commencer.");
 			Console.ReadKey();
 			await arango.CreateDocumentsCollection(databaseName, collectionCommande);
-			await arango.ImportFiles<Commande>(databaseName, collectionCommande,
+			await arango.ImportManyAsync<Commande>(databaseName, collectionCommande,
 								Path.Combine(pathBase, "Command1.json"),
 								Path.Combine(pathBase, "Command2.json"),
 								Path.Combine(pathBase, "Command3.json"),
@@ -141,7 +141,12 @@ namespace ArangoDemo
 			Console.WriteLine("----> Avoir les commandes des clients.");
 			Console.WriteLine("#:> Appuyer sur une touche pour commencer.");
 			Console.ReadKey();
-			var resultatJointure = await arango.JointureEntreDeuxCollections(databaseName, collectioncClient, collectionCommande);
+			var resultatJointure = await arango.JointureEntreDeuxCollectionsAsync(databaseName, collectioncClient, collectionCommande);
+			foreach (var cmd in resultatJointure)
+			{
+				Console.WriteLine($"Client : {cmd.Client.ToString()}");
+				Console.WriteLine($"Commande numéro : {cmd.Commande.IdCommand}");
+			}
 
 			Console.WriteLine(); 
 			Console.WriteLine("######## Fin de l'application Démo ########");

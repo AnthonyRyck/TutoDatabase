@@ -30,7 +30,17 @@ namespace ArangoConnect.Models
         }
 
 		public Client() {}
-    }
+
+
+		public override string ToString()
+		{
+			return IdClient + " - " 
+                + Nom + " - " 
+                + Prenom + " - "
+                + Age + " ans - " 
+                + "Sexe : " + Genre;
+		}
+	}
 
     public class Adresse
     {

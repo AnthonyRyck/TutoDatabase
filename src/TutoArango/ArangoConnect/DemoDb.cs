@@ -34,7 +34,7 @@ namespace ArangoConnect
 		/// <param name="collectionName"></param>
 		/// <param name="pathFiles"></param>
 		/// <returns></returns>
-		public async Task ImportFiles<T>(string dataBase, string collectionName, params string [] pathFiles)
+		public async Task ImportManyAsync<T>(string dataBase, string collectionName, params string [] pathFiles)
 		{
 			List<T> importFiles = new List<T>();
 			foreach (var file in pathFiles)
@@ -49,7 +49,7 @@ namespace ArangoConnect
 		
 
 		/// <summary>
-		/// Ajout un client via une instance.
+		/// Ajout d'un client.
 		/// </summary>
 		/// <param name="unNouveauClient"></param>
 		/// <returns></returns>
@@ -65,7 +65,7 @@ namespace ArangoConnect
 		/// <param name="nomDuClient"></param>
 		/// <param name="age"></param>
 		/// <returns></returns>
-		public async Task UpdateAgeClientByName(string databaseName, string nomDuClient, int age)
+		public async Task UpdateAgeClientByNameAsync(string databaseName, string nomDuClient, int age)
 		{
 			var clientToUpdate = Arango.Query<Client>(databaseName)
 											.Where(x => x.Nom == nomDuClient)
@@ -84,7 +84,7 @@ namespace ArangoConnect
 		/// <param name="collectionName"></param>
 		/// <param name="idClient"></param>
 		/// <returns></returns>
-		public async Task<Client> GetClientById(string dataBase, int idClient)
+		public async Task<Client> GetClientByIdAsync(string dataBase, int idClient)
 		{
 			return await Arango.Query<Client>(dataBase)
 								.FirstOrDefaultAsync(x => x.IdClient == idClient);
@@ -94,7 +94,7 @@ namespace ArangoConnect
 		/// Retourne tous les clients de genre "female"
 		/// </summary>
 		/// <returns></returns>
-		public async Task<IEnumerable<Client>> GetFemaleClients(string database)
+		public async Task<IEnumerable<Client>> GetFemaleClientsAsync(string database)
 		{
 			return await Arango.Query<Client>(database)
 						.Where(x => x.Genre == "female")
@@ -108,7 +108,7 @@ namespace ArangoConnect
 		/// <param name="v"></param>
 		/// <returns></returns>
 		/// <exception cref="NotImplementedException"></exception>
-		public async Task<IEnumerable<Client>> GetAgeClientsInfOuEgalTo(string databaseName, int age)
+		public async Task<IEnumerable<Client>> GetAgeClientsInfOuEgalToAsync(string databaseName, int age)
 		{
 			return await Arango.Query<Client>(databaseName)
 								.Where(x => x.Age <= age)
@@ -122,7 +122,7 @@ namespace ArangoConnect
 		/// <param name="collectionClient"></param>
 		/// <param name="collectionCommandes"></param>
 		/// <returns></returns>
-		public async Task<IEnumerable<ClientCommandes>> JointureEntreDeuxCollections(string databaseName, string collectionClient, string collectionCommandes)
+		public async Task<IEnumerable<ClientCommandes>> JointureEntreDeuxCollectionsAsync(string databaseName, string collectionClient, string collectionCommandes)
 		{
 			// Requête AQL
 			// FOR cli IN Client
