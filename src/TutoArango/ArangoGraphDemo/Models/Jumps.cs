@@ -1,6 +1,6 @@
 ﻿
 
-namespace ConsoleArango.Models
+namespace ArangoGraphDemo.Models
 {
 	public class Jumps
 	{

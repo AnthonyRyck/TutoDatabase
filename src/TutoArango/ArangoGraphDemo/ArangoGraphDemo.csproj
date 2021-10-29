@@ -9,4 +9,19 @@
     <ProjectReference Include="..\ArangoConnect\ArangoConnect.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Files\AllJumpsTheForge.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\AllSystemsTheForge.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Jumps.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\systemSolar.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
