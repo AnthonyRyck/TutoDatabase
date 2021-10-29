@@ -1,8 +1,4 @@
 ﻿using Core.Arango;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ArangoConnect
@@ -10,8 +6,6 @@ namespace ArangoConnect
 	public abstract class ArangoLoader
 	{
 		protected ArangoContext Arango;
-
-
 
 		public ArangoLoader(string url, int port, string projectName, string login, string password)
 		{

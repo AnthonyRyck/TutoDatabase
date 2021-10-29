@@ -8,8 +8,9 @@ using ArangoConnect.Models;
 using Core.Arango.Linq;
 using System.Linq;
 using Core.Arango;
+using ArangoConnect;
 
-namespace ArangoConnect
+namespace ArangoDemo
 {
 	public class DemoDb : ArangoLoader
 	{
@@ -74,6 +75,8 @@ namespace ArangoConnect
 												Age = age
 											});
 
+			var requeteAql = clientToUpdate.ToAql();
+
 			await clientToUpdate.FirstOrDefaultAsync();
 		}
 
@@ -81,7 +84,6 @@ namespace ArangoConnect
 		/// Retourne le client par rapport à son IdClient.
 		/// </summary>
 		/// <param name="dataBase"></param>
-		/// <param name="collectionName"></param>
 		/// <param name="idClient"></param>
 		/// <returns></returns>
 		public async Task<Client> GetClientByIdAsync(string dataBase, int idClient)
@@ -105,9 +107,8 @@ namespace ArangoConnect
 		/// Retourne tous les clients qui ont un âge inférieur donné
 		/// </summary>
 		/// <param name="databaseName"></param>
-		/// <param name="v"></param>
+		/// <param name="age"></param>
 		/// <returns></returns>
-		/// <exception cref="NotImplementedException"></exception>
 		public async Task<IEnumerable<Client>> GetAgeClientsInfOuEgalToAsync(string databaseName, int age)
 		{
 			return await Arango.Query<Client>(databaseName)
@@ -134,8 +135,11 @@ namespace ArangoConnect
 			FormattableString forPartCmd = $"FOR cmd IN {collectionCommandes:@}";
 			FormattableString filterPart = $"FILTER cli.IdClient == cmd.ClientId";
 			FormattableString returnPart = $"RETURN {{ Client: cli, Commande: cmd}}";
-			ArangoList<ClientCommandes> resultJointure = await Arango.Query.ExecuteAsync<ClientCommandes>(databaseName, $"{forPartClient} {forPartCmd} {filterPart} {returnPart}");
 
+			// Pour information en "brut" sous format JSON.
+			var enFormatJson = await Arango.Query.ExecuteAsync<Newtonsoft.Json.Linq.JObject>(databaseName, $"{forPartClient} {forPartCmd} {filterPart} {returnPart}");
+
+			ArangoList<ClientCommandes> resultJointure = await Arango.Query.ExecuteAsync<ClientCommandes>(databaseName, $"{forPartClient} {forPartCmd} {filterPart} {returnPart}");
 			return resultJointure.ToList();
 		}
 	}
