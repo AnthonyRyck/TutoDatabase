@@ -17,8 +17,8 @@ namespace ArangoGraphDemo
 
 			string urlArango = "localhost";
 			int port = 8529;
-			string projectName = "TutoArango";
-			string databaseName = "ctrlaltsupprDb";
+			string projectName = "TutoArangoGraph";
+			string databaseName = "ctrlaltsupprGraphDb";
 			string graphName = "EveGraph";
 			string login = "root";
 			string password = "PassCtrlAltSuppr";
@@ -30,9 +30,11 @@ namespace ArangoGraphDemo
 			WriteLineInfo("Appuyer sur une touche pour commencer");
 			Console.ReadKey();
 			Console.WriteLine($"----> Connexion sur : {urlArango}:{port}");
+
 			GraphDemoDb arango = new GraphDemoDb(urlArango, port, projectName, login, password);
 			await arango.DeleteDatabase(databaseName);
 			WriteLineResult($"Suppression de la base {databaseName} - OK");
+			
 			await arango.CreateDatabase(databaseName);
 			WriteLineResult($"Création de la base {databaseName} - OK");
 
@@ -77,14 +79,14 @@ namespace ArangoGraphDemo
 			Console.ReadKey();
 
 			WriteLineInfo("Récupération des systèmes avec une sécurité au moins de 0.5");
-			var systemes = await arango.GetSystems(databaseName, 0.5);
+			IEnumerable<SolarSystem> systemes = await arango.GetSystems(databaseName, 0.5);
 			foreach (var sys in systemes)
 			{
 				WriteLineResult("Nom : " + sys.SolarSystemName + " - Sécurité : " + sys.Securite);
-			}
+			} 
 
 			Console.WriteLine();
-			Console.WriteLine("######## Fin de l'application Démo ########");
+			WriteLineInfo("######## Fin de l'application Démo ########");
 		}
 
 		private static void WriteLineInfo(string message)

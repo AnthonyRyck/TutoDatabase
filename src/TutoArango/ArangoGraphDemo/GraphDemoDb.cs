@@ -65,14 +65,17 @@ namespace ArangoGraphDemo
 				foreach (var solar in allSolarSystems)
 				{
 					await Arango.Graph.Vertex.CreateAsync(nomDatabase, graphName, SOLAR_VERTICES,
-							new
-							{
-								// Bien mettre en ToString, sinon Exception
-								Key = solar.SolarSystemId.ToString(),
-								Name = solar.SolarSystemName,
-								Securite = solar.Securite,
-								RegionName = solar.RegionName
-							});
+					new
+					{
+						// Bien mettre en ToString, sinon Exception
+						// voir :
+						// https://www.arangodb.com/docs/stable/data-modeling-naming-conventions-document-keys.html
+						Key = solar.SolarSystemId.ToString(),
+						SolarSystemName = solar.SolarSystemName,
+						Securite = solar.Securite,
+						RegionName = solar.RegionName,
+						SolarSystemId = solar.SolarSystemId
+					});
 				}
 
 				// Création des relations
@@ -89,11 +92,18 @@ namespace ArangoGraphDemo
 			}
 			catch (Exception ex)
 			{
+				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine("#################");
 				Console.WriteLine("Error :");
+				Console.ForegroundColor = ConsoleColor.DarkRed;
 				Console.WriteLine(ex.Message);
+				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine("#################");
+				Console.ForegroundColor = ConsoleColor.DarkRed;
 				Console.WriteLine(ex.StackTrace);
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("#################");
+				Console.ForegroundColor = ConsoleColor.White;
 			}
 		}
 
