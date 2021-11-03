@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Core.Arango.Protocol;
-using ArangoConnect.Models;
 using Core.Arango.Linq;
 using System.Linq;
 using Core.Arango;
 using ArangoConnect;
 using ArangoGraphDemo.Models;
-using System.Text;
-using System.Runtime.CompilerServices;
+using ArangoConnect.Extensions;
 
 namespace ArangoGraphDemo
 {
@@ -173,31 +169,6 @@ namespace ArangoGraphDemo
 
 				return new List<SolarSystem>();
 			}
-		}
-	}
-
-
-	public static class AqlQueryExtension
-	{
-		public static StringBuilder StartQuery(this string value)
-		{
-			var source = new StringBuilder();
-			source.AppendLine(value);
-			return source;
-		}
-
-		public static StringBuilder AddLineToQuery(this StringBuilder source, string value)
-		{
-			if(source == null)
-				source = new StringBuilder();
-			
-			source.AppendLine(value);
-			return source;
-		}
-
-		public static FormattableString ToQueryAql(this StringBuilder source)
-		{
-			return FormattableStringFactory.Create(source.ToString());
 		}
 	}
 }
