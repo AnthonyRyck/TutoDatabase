@@ -129,7 +129,7 @@ namespace ArangoGraphDemo
 		/// <param name="systemDepart"></param>
 		/// <param name="systemArrive"></param>
 		/// <returns></returns>
-		internal async Task<IEnumerable<SolarSystem>> GetItineraireAsync(string databaseName, string graphName, string systemDepart, string systemArrive)
+		internal async Task<List<SolarSystem>> GetItineraireAsync(string databaseName, string graphName, string systemDepart, string systemArrive)
 		{
 			try
 			{
@@ -143,27 +143,16 @@ namespace ArangoGraphDemo
 				// GRAPH 'graphName'
 				// RETURN path
 
-				StringBuilder stringBuilder = new StringBuilder();
-				stringBuilder.AppendLine("FOR sysDepart IN SolarSystem");
-				stringBuilder.AppendLine($"FILTER sysDepart.SolarSystemName == '{systemDepart}'");
-				stringBuilder.AppendLine("FOR sysArrive IN SolarSystem");
-				stringBuilder.AppendLine($"FILTER sysArrive.SolarSystemName == '{systemArrive}'");
-				stringBuilder.AppendLine("FOR path IN OUTBOUND SHORTEST_PATH");
-				stringBuilder.AppendLine("sysDepart._id TO sysArrive._id");
-				stringBuilder.AppendLine($"GRAPH '{graphName}'");
-				stringBuilder.AppendLine("RETURN path");
-
-				StringBuilder autreFacon = "FOR sysDepart IN SolarSystem".StartQuery()
+				FormattableString query = "FOR sysDepart IN SolarSystem".StartQuery()
 							.AddLineToQuery($"FILTER sysDepart.SolarSystemName == '{systemDepart}'")
 							.AddLineToQuery("FOR sysArrive IN SolarSystem")
 							.AddLineToQuery($"FILTER sysArrive.SolarSystemName == '{systemArrive}'")
 							.AddLineToQuery("FOR path IN OUTBOUND SHORTEST_PATH")
 							.AddLineToQuery("sysDepart._id TO sysArrive._id")
 							.AddLineToQuery($"GRAPH '{graphName}'")
-							.AddLineToQuery("RETURN path");
+							.AddLineToQuery("RETURN path")
+							.ToQueryAql();
 
-				FormattableString query = autreFacon.ToQueryAql();
-				
 				ArangoList<SolarSystem> resultJointure = await Arango.Query.ExecuteAsync<SolarSystem>(databaseName, query);
 				return resultJointure.ToList();
 			}
@@ -182,7 +171,7 @@ namespace ArangoGraphDemo
 				Console.WriteLine("#################");
 				Console.ForegroundColor = ConsoleColor.White;
 
-				return Enumerable.Empty<SolarSystem>();
+				return new List<SolarSystem>();
 			}
 		}
 	}
