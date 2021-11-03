@@ -1,6 +1,6 @@
 ﻿
 
-namespace ArangoConnect.Models
+namespace ArangoDemo.Models
 {
 	public class Panier
 	{

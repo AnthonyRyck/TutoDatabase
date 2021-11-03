@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ArangoConnect.Models
+namespace ArangoDemo.Models
 {
     public class Client //: ArangoId ---> pas obligatoire.
     {

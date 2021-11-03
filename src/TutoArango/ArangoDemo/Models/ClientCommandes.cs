@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArangoConnect.Models
+namespace ArangoDemo.Models
 {
 	public class ClientCommandes
 	{

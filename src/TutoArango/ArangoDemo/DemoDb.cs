@@ -4,7 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Core.Arango.Protocol;
-using ArangoConnect.Models;
+using ArangoDemo.Models;
 using Core.Arango.Linq;
 using System.Linq;
 using Core.Arango;

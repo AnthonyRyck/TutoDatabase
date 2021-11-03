@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using ArangoConnect.Models;
+using ArangoDemo.Models;
 
 namespace ArangoDemo
 {
