@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -34,7 +35,7 @@ namespace ArangoGraphDemo
 			GraphDemoDb arango = new GraphDemoDb(urlArango, port, projectName, login, password);
 			await arango.DeleteDatabase(databaseName);
 			WriteLineResult($"Suppression de la base {databaseName} - OK");
-			
+
 			await arango.CreateDatabase(databaseName);
 			WriteLineResult($"Création de la base {databaseName} - OK");
 
@@ -50,8 +51,12 @@ namespace ArangoGraphDemo
 			WriteLineInfo("Appuyer sur une touche pour commencer");
 
 			string pathBase = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Files");
-			string pathSystems = Path.Combine(pathBase, "AllSystemsTheForge.json");
-			string pathJumps = Path.Combine(pathBase, "AllJumpsTheForge.json");
+			// --> Juste une Région : The Forge
+			//string pathSystems = Path.Combine(pathBase, "AllSystemsTheForge.json");
+			//string pathJumps = Path.Combine(pathBase, "AllJumpsTheForge.json");
+			// --> Ou tout l'univers !
+			string pathSystems = Path.Combine(pathBase, "systemSolar.json");
+			string pathJumps = Path.Combine(pathBase, "Jumps.json");
 
 			WriteLineInfo("Chargement des systèmes solaire...");
 			var jsonContentSystems = await File.ReadAllTextAsync(pathSystems);
@@ -69,10 +74,11 @@ namespace ArangoGraphDemo
 			WriteLineInfo(":> Injection des données pour créer le graph");
 			WriteLineInfo("Appuyer sur une touche pour continuer...");
 			Console.ReadKey();
-			
+
+			WriteLineInfo("En cours d'injection....");
 			await arango.PopulateAsync(databaseName, graphName, allSolarSystems, allJumps);
 			WriteLineResult("Graph créé !");
-			
+
 			Console.WriteLine();
 			WriteLineInfo($"####### 3eme étape : Faisons quelques requêtes. #######");
 			WriteLineInfo("Appuyer sur une touche pour commencer");
@@ -80,10 +86,12 @@ namespace ArangoGraphDemo
 
 			WriteLineInfo("Récupération des systèmes avec une sécurité au moins de 0.5");
 			IEnumerable<SolarSystem> systemes = await arango.GetSystems(databaseName, 0.5);
-			foreach (var sys in systemes)
-			{
-				WriteLineResult("Nom : " + sys.SolarSystemName + " - Sécurité : " + sys.Securite);
-			} 
+			WriteLineResult($"Il y a {systemes.Count()} systèmes qui ont une sécurité supérieur ou égal à 0.5");
+
+			WriteLineInfo("Faire un itinéraire le plus rapide entre 2 systèmes");
+			WriteLineInfo("Appuyer sur une touche pour commencer");
+			Console.ReadKey();
+			await arango.GetItineraireAsync(databaseName, graphName, "Airaken", "Reisen");
 
 			Console.WriteLine();
 			WriteLineInfo("######## Fin de l'application Démo ########");
