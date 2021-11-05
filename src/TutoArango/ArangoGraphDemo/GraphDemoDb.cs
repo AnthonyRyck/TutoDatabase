@@ -170,5 +170,48 @@ namespace ArangoGraphDemo
 				return new List<SolarSystem>();
 			}
 		}
+
+		/// <summary>
+		/// Non fonctionnel, juste pour montrer l'Exception.
+		/// </summary>
+		/// <param name="systemDepart"></param>
+		/// <param name="systemArrive"></param>
+		/// <returns></returns>
+		internal async Task<List<SolarSystem>> GetItineraireWithInterpolationAsync(string databaseName, string graphName, string systemDepart, string systemArrive)
+		{
+			try
+			{
+				// ### Juste pour montrer l'exception en utilisant cette méthode.
+				FormattableString For1 = $"FOR sysDepart IN SolarSystem ";
+				FormattableString Filter1 = $"FILTER sysDepart.SolarSystemName == '{systemDepart}' ";
+				FormattableString For2 = $"FOR sysArrive IN SolarSystem ";
+				FormattableString Filter2 = $"FILTER sysArrive.SolarSystemName == '{systemArrive}' ";
+				FormattableString Path1 = $"FOR path IN OUTBOUND SHORTEST_PATH ";
+				FormattableString Path2 = $"sysDepart._id TO sysArrive._id ";
+				FormattableString Graph = $"GRAPH '{graphName}' ";
+				FormattableString Return = $"RETURN path";
+
+				ArangoList<SolarSystem> resultJointure = await Arango.Query.ExecuteAsync<SolarSystem>(databaseName, $"{For1} {Filter1} {For2} {Filter2} {Path1} {Path2} {Graph} {Return}");
+				return resultJointure.ToList();
+			}
+			catch (Exception ex)
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("#################");
+				Console.WriteLine("Error :");
+				Console.ForegroundColor = ConsoleColor.DarkRed;
+				Console.WriteLine(ex.Message);
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("#################");
+				Console.ForegroundColor = ConsoleColor.DarkRed;
+				Console.WriteLine(ex.StackTrace);
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("#################");
+				Console.ForegroundColor = ConsoleColor.White;
+
+				return new List<SolarSystem>();
+			}
+		}
+		
 	}
 }
