@@ -59,6 +59,9 @@ namespace ArangoGraphDemo
 		{
 			try
 			{
+				int countSystem = allSolarSystems.Count;
+				int countInsertSystem = 1;
+
 				// Création des Vertices
 				foreach (var solar in allSolarSystems)
 				{
@@ -74,7 +77,13 @@ namespace ArangoGraphDemo
 						RegionName = solar.RegionName,
 						SolarSystemId = solar.SolarSystemId
 					});
+
+					Console.WriteLine($"Insertion de {solar.SolarSystemName} - {countInsertSystem++} sur {countSystem}");
 				}
+
+
+				int countEdge = allJumps.Count;
+				int countInsertEdge = 1;
 
 				// Création des relations
 				foreach (var jump in allJumps)
@@ -86,6 +95,8 @@ namespace ArangoGraphDemo
 						To = SOLAR_VERTICES + "/" + jump.ToSystemID,
 						Label = "JumpTo"
 					});
+
+					Console.WriteLine($"Jump {countInsertEdge++} sur {countEdge} créé...");
 				}
 			}
 			catch (Exception ex)
