@@ -1,0 +1,22 @@
+{
+    "IdClient": 789,
+    "Prenom": "Lydia",
+    "Nom": "Clap",
+    "Genre": "female",
+    "Age": 26,
+    "Adresse": {
+        "Numero": "99",
+        "Rue": "Rue du Labas",
+        "Ville": "Lille"
+    },
+    "Telephone": [
+        {
+            "Type": "home",
+            "Number": "484845"
+        },
+        {
+            "Type": "pro",
+            "Number": "7184818181"
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "IdClient": 147,
+    "Prenom": "Jean",
+    "Nom": "Heineken",
+    "Genre": "male",
+    "Age": 30,
+    "Adresse": {
+        "Numero": "52",
+        "Rue": "Rue de la soif",
+        "Ville": "Strasbourg"
+    },
+    "Telephone": [
+        {
+            "Type": "home",
+            "Number": "1664"
+        },
+        {
+            "Type": "portable",
+            "Number": "151571"
+        }
+    ]
+}
