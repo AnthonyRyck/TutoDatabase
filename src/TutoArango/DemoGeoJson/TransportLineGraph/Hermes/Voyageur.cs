@@ -119,10 +119,14 @@ public class Voyageur : ArangoLoader
 					{
 						From = ARRET + "/" + line.FromId,
 						To = ARRET + "/" + line.ToId,
-						Horaires = line.Horaires.Select(x => x.ToString("R")).ToList(),
-                        Ligne = line.NomLigne
+                        Ligne = line.NomLigne,
+                        //HorairesByDay = line.HorairesParJour
+                        HorairesByDay = line.HorairesParJour.Select(x => new 
+                        {
+                            jour = x.Key, horaire = x.Value.Select(x => x.ToString("R"))
+                        })
 					});
-        }
+        }   
     }
 
     #endregion
@@ -135,11 +139,14 @@ public class Voyageur : ArangoLoader
         
         foreach (var route in dataEngineGtfs.Gtfs.AllRoutes)
         {
-            // Chercher tous les Trips
+            // Récupères tous les Trips de cette route
             List<Trips> routeTrips = dataEngineGtfs.Gtfs.AllTrips.Values.Where(trip => trip.route_id == route.Key)
                                             .ToList();
             foreach (var trip in routeTrips)
             {
+                // Récupération du jour pour les horaires
+                var jours = GetJourPassage(trip.GetCalendar);
+
                 List<StopTimes> toutStopTimes = trip.StopTimesCollection.OrderBy(x => x.stop_sequence).ToList();
 
                 for (var enCours = 0; enCours < toutStopTimes.Count - 1; enCours++)
@@ -151,7 +158,21 @@ public class Voyageur : ArangoLoader
                     // Vérification que le trajet n'existe pas déjà.
                     if(trajetPresent is not null)
                     {
-                        trajetPresent.Horaires.Add(GetHoraire(toutStopTimes[enCours].arrival_time));
+                        var heureArrive = GetHoraire(toutStopTimes[enCours].arrival_time);
+
+                        foreach (var jour in jours)
+                        {
+                            if(trajetPresent.HorairesParJour.ContainsKey(jour))
+                            {
+                                trajetPresent.HorairesParJour[jour].Add(heureArrive);
+                            }
+                            else
+                            {
+                                List<TimeOnly> nouveauHoraire = new List<TimeOnly>();
+                                nouveauHoraire.Add(heureArrive);
+                                trajetPresent.HorairesParJour.Add(jour, nouveauHoraire);
+                            }
+                        }
                     }
                     else
                     {
@@ -162,7 +183,20 @@ public class Voyageur : ArangoLoader
                         nouveauTrajet.FromId = toutStopTimes[enCours].stop_id;
                         nouveauTrajet.ToId = toutStopTimes[enCours + 1].stop_id;
 
-                        nouveauTrajet.Horaires.Add(GetHoraire(toutStopTimes[enCours].arrival_time));
+                        var heureArrive = GetHoraire(toutStopTimes[enCours].arrival_time);
+                        foreach (var jour in jours)
+                        {
+                            if(nouveauTrajet.HorairesParJour.ContainsKey(jour))
+                            {
+                                nouveauTrajet.HorairesParJour[jour].Add(heureArrive);
+                            }
+                            else
+                            {
+                                List<TimeOnly> nouveauHoraire = new List<TimeOnly>();
+                                nouveauHoraire.Add(heureArrive);
+                                nouveauTrajet.HorairesParJour.Add(jour, nouveauHoraire);
+                            }
+                        }
 
                         trajets.Add(nouveauTrajet);
                     }
@@ -172,8 +206,12 @@ public class Voyageur : ArangoLoader
         // Ordonne les listes
         foreach (var item in trajets)
         {
-            item.Horaires = item.Horaires.Distinct().ToList();
-            item.Horaires.Sort();
+            foreach(var temps in item.HorairesParJour)
+            {
+                var tempDistinct = temps.Value.Distinct().ToList();
+                tempDistinct.Sort();
+                item.HorairesParJour[temps.Key] = tempDistinct;
+            }
         }
 
         return trajets;
@@ -190,6 +228,46 @@ public class Voyageur : ArangoLoader
         
         return TimeOnly.ParseExact(horaire, "HH:mm:ss");
     }
+
+    /// <summary>
+    /// Retourn la liste des jours de passage pour les horaires.
+    /// </summary>
+    /// <param name="calendar"></param>
+    /// <returns></returns>
+    private IEnumerable<string> GetJourPassage(Calendar calendar)
+    {
+        List<string> jourPassage = new List<string>();
+        if(calendar.monday == 1)
+            jourPassage.Add(LUNDI);
+        
+        if(calendar.tuesday == 1)
+            jourPassage.Add(MARDI);
+
+        if(calendar.wednesday == 1)
+            jourPassage.Add(MERCREDI);
+
+        if(calendar.thursday == 1)
+            jourPassage.Add(JEUDI);
+
+        if(calendar.friday == 1)
+            jourPassage.Add(VENDREDI);
+
+        if(calendar.saturday == 1)
+            jourPassage.Add(SAMEDI);
+
+        if(calendar.sunday == 1)
+            jourPassage.Add(DIMANCHE);
+
+        return jourPassage;
+    }
+
+    const string LUNDI = "lundi";
+    const string MARDI = "mardi";
+    const string MERCREDI = "mercredi";
+    const string JEUDI = "jeudi";
+    const string VENDREDI = "vendredi";
+    const string SAMEDI = "samedi";
+    const string DIMANCHE = "dimanche";
 
     #endregion
     

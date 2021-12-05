@@ -23,8 +23,10 @@ public class Trajet
     public string IdRoute { get; set; }
     
     /// <summary>
-    /// Tous les horaires d'arrivés
+    /// Liste des horaires par jour de la semaine
     /// </summary>
-    public List<TimeOnly> Horaires { get; set; } = new List<TimeOnly>();
+    public Dictionary<string, List<TimeOnly>> HorairesParJour { get; set; } = new Dictionary<string, List<TimeOnly>>();
+    
+    
     
 }
