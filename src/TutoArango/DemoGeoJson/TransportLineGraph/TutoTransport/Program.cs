@@ -8,7 +8,7 @@ const string PROJECT_NAME = "TutoTransportLineGraph";
 const string DATABASE_NAME = "lineGraphDb";
 const string GRAPH_NAME = "TransportLine";
 const string LOGIN = "root";
-const string SUPERPASS = "PassTransportGraph"; 
+const string SUPERPASS = "PassCtrlAltSuppr"; 
 
 "###### Charger un fichier zip des transport ######".ToConsoleInfo();
 "#:> Appuyer sur une touche pour commencer.".ToConsoleInfo();
@@ -20,7 +20,10 @@ await voyageur.LoadFileAsync(pathZipFile);
 await voyageur.CreateModelsAsync();
 
 "#### Connexion à la base ####".ToConsoleInfo();
-//await voyageur.CreateDatabaseAsync(DATABASE_NAME);
+await voyageur.DeleteDatabaseAsync(DATABASE_NAME);
+await voyageur.CreateDatabaseAsync(DATABASE_NAME);
+await voyageur.CreateGraph(DATABASE_NAME, GRAPH_NAME);
+await voyageur.PopulateDatabase(DATABASE_NAME, GRAPH_NAME);
 WriteLine();
 
 

@@ -23,4 +23,6 @@ public class Arret
     public double Longitude { get; set; }
     
     
+
+    public double[] Coordonnees { get {return new double[] {Longitude, Latitude } ;} }
 }

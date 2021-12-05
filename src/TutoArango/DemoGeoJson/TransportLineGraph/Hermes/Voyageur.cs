@@ -6,7 +6,7 @@ using Hermes.Models;
 
 public class Voyageur : ArangoLoader
 {
-    private DataEngine dataEngineGtfs; 
+    private DataEngine dataEngineGtfs;
 
     private List<Arret> TousLesArrets;
     private List<Trajet> TousLesTrajets;
@@ -62,7 +62,7 @@ public class Voyageur : ArangoLoader
                                 Longitude = stop.Value.stop_lon
                             }).ToList();
 
-            var allTimes = CreateTrajet(); 
+            TousLesTrajets = CreateTrajet(); 
         });
     }
 
@@ -71,7 +71,7 @@ public class Voyageur : ArangoLoader
 	/// </summary>
 	/// <param name="nameDatabase">Nom de la base de donnée</param>
 	/// <returns></returns>
-	internal async Task CreateGraph(string nameDatabase, string graphName)
+	public async Task CreateGraph(string nameDatabase, string graphName)
 	{
         await Arango.Collection.CreateAsync(nameDatabase, ARRET, ArangoCollectionType.Document);
 		await Arango.Collection.CreateAsync(nameDatabase, TRAJET, ArangoCollectionType.Edge);
@@ -90,21 +90,51 @@ public class Voyageur : ArangoLoader
 		});
 	}
 
+    /// <summary>
+    /// Ajoute tous les sommets Arrets.
+    /// </summary>
+    /// <param name="nomDatabase"></param>
+    /// <param name="graphName"></param>
+    /// <returns></returns>
+    public async Task PopulateDatabase(string nomDatabase, string graphName)
+    {
+        foreach (var arret in TousLesArrets)
+        {
+            await Arango.Graph.Vertex.CreateAsync(nomDatabase, graphName, ARRET,
+					new
+					{
+						Key = arret.IdArret,
+                        location = new 
+                            { 
+                                coordinates = arret.Coordonnees, 
+                                type = "Point"
+                            },
+						Nom = arret.Nom
+					});
+        }
+
+        foreach (var line in TousLesTrajets)
+        {
+            await Arango.Graph.Edge.CreateAsync(nomDatabase, graphName, TRAJET, new
+					{
+						From = ARRET + "/" + line.FromId,
+						To = ARRET + "/" + line.ToId,
+						Horaires = line.Horaires.Select(x => x.ToString("R")).ToList(),
+                        Ligne = line.NomLigne
+					});
+        }
+    }
+
     #endregion
 
     #region Private methods
 
-    private IEnumerable<Trajet> CreateTrajet()
+    private List<Trajet> CreateTrajet()
     {
         List<Trajet> trajets = new List<Trajet>();
         
         foreach (var route in dataEngineGtfs.Gtfs.AllRoutes)
         {
-            // Cas d'un nouveau trajet.
-            // Trajet nouveauTrajet = new Trajet();
-            // nouveauTrajet.IdRoute =  route.Value.route_id;
-            // nouveauTrajet.NomLigne = route.Value.route_short_name;
-            
             // Chercher tous les Trips
             List<Trips> routeTrips = dataEngineGtfs.Gtfs.AllTrips.Values.Where(trip => trip.route_id == route.Key)
                                             .ToList();
@@ -121,8 +151,7 @@ public class Voyageur : ArangoLoader
                     // Vérification que le trajet n'existe pas déjà.
                     if(trajetPresent is not null)
                     {
-                        var plantage = toutStopTimes[enCours].ArrivalTime;
-                        trajetPresent.Horaires.Add(TimeOnly.FromTimeSpan(toutStopTimes[enCours].ArrivalTime));
+                        trajetPresent.Horaires.Add(GetHoraire(toutStopTimes[enCours].arrival_time));
                     }
                     else
                     {
@@ -133,18 +162,34 @@ public class Voyageur : ArangoLoader
                         nouveauTrajet.FromId = toutStopTimes[enCours].stop_id;
                         nouveauTrajet.ToId = toutStopTimes[enCours + 1].stop_id;
 
-                        nouveauTrajet.Horaires.Add(TimeOnly.FromTimeSpan(toutStopTimes[enCours].ArrivalTime));
+                        nouveauTrajet.Horaires.Add(GetHoraire(toutStopTimes[enCours].arrival_time));
 
                         trajets.Add(nouveauTrajet);
                     }
                 }
             }
         }
+        // Ordonne les listes
+        foreach (var item in trajets)
+        {
+            item.Horaires = item.Horaires.Distinct().ToList();
+            item.Horaires.Sort();
+        }
 
         return trajets;
     }
 
     
+    private TimeOnly GetHoraire(string horaire)
+    {
+        var heure = Convert.ToInt16(horaire.Split(':')[0]);
+        if(heure >= 24)
+        {
+            horaire = "00" + horaire.Substring(2);
+        }
+        
+        return TimeOnly.ParseExact(horaire, "HH:mm:ss");
+    }
 
     #endregion
     

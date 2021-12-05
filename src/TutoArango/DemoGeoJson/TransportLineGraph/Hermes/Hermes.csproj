@@ -5,7 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GtfsEngine" Version="1.0.3" />
+    <PackageReference Include="GtfsEngine" Version="1.0.4" />
   </ItemGroup>
 
   <PropertyGroup>
