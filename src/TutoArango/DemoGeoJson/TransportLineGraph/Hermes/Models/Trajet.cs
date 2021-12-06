@@ -1,5 +1,8 @@
 namespace Hermes.Models;
 
+/// <summary>
+/// Trajet : C'est entre 2 points (arrêts), pour une ligne et une direction.
+/// </summary>
 public class Trajet
 {
     /// <summary>
@@ -13,10 +16,20 @@ public class Trajet
     public string ToId { get; set; }
     
     /// <summary>
-    /// Nom de la ligne.
+    /// Code ligne.
     /// </summary>
-    public string NomLigne { get; set; }
-    
+    public string CodeLigne { get; set; }
+
+	/// <summary>
+	/// Donne la direction de la ligne
+	/// </summary>
+	public string Direction { get; set; }
+	
+	/// <summary>
+	/// Nom de la ligne
+	/// </summary>
+	public string NomLigne { get; set; }
+	
     /// <summary>
     /// Id de la route.
     /// </summary>

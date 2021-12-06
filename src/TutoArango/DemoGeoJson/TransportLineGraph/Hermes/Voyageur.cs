@@ -13,7 +13,14 @@ public class Voyageur : ArangoLoader
 
     private const string ARRET = "Arret";
     private const string TRAJET = "Trajet";
-    const string SEPARATOR = "####";
+    private const string SEPARATOR = "####";
+	private const string LUNDI = "lundi";
+    private const string MARDI = "mardi";
+    private const string MERCREDI = "mercredi";
+    private const string JEUDI = "jeudi";
+    private const string VENDREDI = "vendredi";
+    private const string SAMEDI = "samedi";
+    private const string DIMANCHE = "dimanche";
 
 
     #region Constructeur
@@ -119,8 +126,9 @@ public class Voyageur : ArangoLoader
 					{
 						From = ARRET + "/" + line.FromId,
 						To = ARRET + "/" + line.ToId,
-                        Ligne = line.NomLigne,
-                        //HorairesByDay = line.HorairesParJour
+                        CodeLigne = line.CodeLigne,
+						Nom = line.NomLigne,
+						Direction = line.Direction,
                         HorairesByDay = line.HorairesParJour.Select(x => new 
                         {
                             jour = x.Key, horaire = x.Value.Select(x => x.ToString("R"))
@@ -152,6 +160,7 @@ public class Voyageur : ArangoLoader
                 for (var enCours = 0; enCours < toutStopTimes.Count - 1; enCours++)
                 {
                     var trajetPresent = trajets.FirstOrDefault(x => x.IdRoute == route.Value.route_id
+								&& x.Direction == trip.trip_headsign
                                 && x.FromId == toutStopTimes[enCours].stop_id
                                 && x.ToId == toutStopTimes[enCours + 1].stop_id);
 
@@ -179,9 +188,11 @@ public class Voyageur : ArangoLoader
                         // Cas d'un nouveau trajet.
                         Trajet nouveauTrajet = new Trajet();
                         nouveauTrajet.IdRoute =  route.Value.route_id;
-                        nouveauTrajet.NomLigne = route.Value.route_short_name;
+                        nouveauTrajet.CodeLigne = route.Value.route_short_name;
+						nouveauTrajet.NomLigne = route.Value.route_long_name;
                         nouveauTrajet.FromId = toutStopTimes[enCours].stop_id;
                         nouveauTrajet.ToId = toutStopTimes[enCours + 1].stop_id;
+						nouveauTrajet.Direction = trip.trip_headsign;
 
                         var heureArrive = GetHoraire(toutStopTimes[enCours].arrival_time);
                         foreach (var jour in jours)
@@ -261,13 +272,7 @@ public class Voyageur : ArangoLoader
         return jourPassage;
     }
 
-    const string LUNDI = "lundi";
-    const string MARDI = "mardi";
-    const string MERCREDI = "mercredi";
-    const string JEUDI = "jeudi";
-    const string VENDREDI = "vendredi";
-    const string SAMEDI = "samedi";
-    const string DIMANCHE = "dimanche";
+
 
     #endregion
     
